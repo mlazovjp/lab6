@@ -1,0 +1,1 @@
+C:\python27\python.exe ".\dll_injector_0_params.py"
