@@ -11,14 +11,57 @@
 // Not in this game.
 void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 {
-	char* oldText = "That move is not allowed.";
-	char tempString[100];
+
 	DWORD address = 0x01010C04;
 
-	//req 2
-	char buffer[26];	
-	char* b[26];
+	const unsigned int originalTextLength = 26;
+	const char originalTextExpected[] = "That move is not allowed.";
 
+
+	char* originalTextAddress;
+	originalTextAddress = (char *)address;
+
+	//req 2
+	//char buffer[26];
+
+	// First let's make a copy of the original text located at originalTextAddress
+	char oldString[originalTextLength];
+	char* b[originalTextLength];
+
+	for (unsigned int i = 0; i < originalTextLength-1; i++)
+	{
+		b[i] = originalTextAddress + 2 * i;
+	}
+	b[25] = "\0";
+	OutputDebugStringA("\noldString:");
+	sprintf_s(oldString, 26, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16], b[17], b[18], b[19], b[20], b[21], b[22], b[23], b[24], b[25]);
+	OutputDebugStringA(oldString);
+
+
+	//OutputDebugStringA("\nBefore strcpy_s(oldText, originalTextLength, (char*)address);\n");
+	//strcpy_s(oldText, originalTextLength, originalText);
+	//OutputDebugStringA("\nAfter strcpy_s(oldText, originalTextLength, (char*)address);\n");
+	//utputDebugStringA(oldText);
+
+	//strcpy_s(*oldText, originalTextExpected, *(char*)address);
+
+	//OutputDebugStringA("\nBefore memcpy_s(&oldText, strlen(originalTextExpected), (char*)address, strlen(originalTextExpected));\n");
+	//memcpy_s(oldText, originalTextLength, (char*)address, originalTextLength);
+
+	//OutputDebugStringA("\nAfter memcpy_s(&oldText, strlen(originalTextExpected), (char*)address, strlen(originalTextExpected));\n");
+	//OutputDebugStringA(oldText);
+
+
+
+
+
+
+
+
+
+
+
+	/*
 	//for (unsigned int i = 0; i < strlen("That move is not allowed."); i++)
 	for (unsigned int i = 0; i < strlen(oldText); i++)
 	{
@@ -62,6 +105,7 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	OutputDebugStringA("Before OutputDebugStringA(b[0]);\n");
 	OutputDebugStringA(b[0]);
 	OutputDebugStringA("After OutputDebugStringA(b[0]);\n");
+	*/
 
 	/*OutputDebugStringA("Before OutputDebugStringA(b[1]);\n");
 	OutputDebugStringA(b[1]);

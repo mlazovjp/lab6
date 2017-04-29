@@ -32,7 +32,7 @@ def main(argv):
 	dll_name = "Inject-DLL-For-FreeCell.dll"
 	dll_subfolder = "Debug"
 	dll_path = basedir + "\\" + dll_subfolder + "\\" + dll_name
-	#print("dll_path=%s") % dll_path
+	print("dll_path=%s") % dll_path
 	dll_len     = len(dll_path)
 	
 	# specify details of the .exe file we wish to run
