@@ -12,19 +12,20 @@
 void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 {
 
-	DWORD address = 0x01010C04;
+	DWORD address = 0x01010C04;		// location of string in memory to change
 
 	const unsigned int originalTextLength = 26;
 	const char originalTextExpected[] = "That move is not allowed.";
 
 
 	char* originalTextAddress;
+	char* modifiedTextAddress;
 	originalTextAddress = (char *)address;
+	modifiedTextAddress = (char *)address;
 
-	//req 2
-	//char buffer[26];
-
+	// ********************************************************************************************
 	// First let's make a copy of the original text located at originalTextAddress
+	// ********************************************************************************************
 	char oldString[originalTextLength];
 	char* b[originalTextLength];
 
@@ -33,9 +34,91 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 		b[i] = originalTextAddress + 2 * i;
 	}
 	b[25] = "\0";
-	OutputDebugStringA("\noldString:");
+	OutputDebugStringA("\noldString=");
 	sprintf_s(oldString, 26, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16], b[17], b[18], b[19], b[20], b[21], b[22], b[23], b[24], b[25]);
 	OutputDebugStringA(oldString);
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Change protection for the memory pages at that address so we can modify the text
+	// ********************************************************************************************
+	unsigned long originalProtectionSetting;
+	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
+	char tempString[100];
+	SIZE_T dwSize = 80;
+
+	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &originalProtectionSetting))
+	{
+		MessageBoxA(0, "VirtualProtect failed", "b[0]", 1);
+	}
+	else
+	{
+		OutputDebugStringA("\nVirtualProtect successful\n");
+		sprintf_s(tempString, 100, "originalProtectionSetting=0x%x\n", originalProtectionSetting);
+		OutputDebugStringA(tempString);
+
+		sprintf_s(tempString, 100, "newProtectionSetting=0x%x\n", newProtectionSetting);
+		OutputDebugStringA(tempString);
+		//MessageBoxA(0, tempString, "oldProtect", 1);
+		//OutputDebugStringA("\nAfter VirtualProtect successful 20\n");
+	}
+
+
+	// ********************************************************************************************
+	// Change contents of the memory pages to use the modified text
+	// ********************************************************************************************
+	//OutputDebugStringA("\nBefore memcpy_s(originalTextAddress, strlen(newText), newText, strlen(newText));\n");
+	OutputDebugStringA("Modifying string\n");
+	memcpy_s(originalTextAddress, strlen(newText), newText, strlen(newText));
+	//OutputDebugStringA("\nAfter memcpy_s(originalTextAddress, strlen(newText), newText, strlen(newText));\n");
+
+	// ********************************************************************************************
+	// Make a copy of the modifiedl text located at originalTextAddress
+	// ********************************************************************************************
+	char modifiedString[originalTextLength];
+	OutputDebugStringA("\nmodifiedString=");
+	sprintf_s(modifiedString, 26, "%s", originalTextAddress);
+	//sprintf_s(modifiedString, 26, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16], b[17], b[18], b[19], b[20], b[21], b[22], b[23], b[24], b[25]);
+	OutputDebugStringA(modifiedString);
+
+
+	// ********************************************************************************************
+	// Change protection for the memory pages at that address to what it had been prior to patching
+	// ********************************************************************************************
+	//unsigned long oldProtect;
+	//char tempString[100];
+	unsigned long previousProtectionSetting;
+	newProtectionSetting = originalProtectionSetting;
+	//unsigned long newProtectionSetting;
+	//OutputDebugStringA("\nBefore VirtualProtect\n");
+	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &previousProtectionSetting))
+	{
+		MessageBoxA(0, "VirtualProtect revert to original failed", "b[0]", 1);
+	}
+	else
+	{
+		OutputDebugStringA("\nVirtualProtect revert to original successful\n");
+		sprintf_s(tempString, 100, "previousProtectionSetting=0x%x\n", previousProtectionSetting);
+		OutputDebugStringA(tempString);
+
+		sprintf_s(tempString, 100, "newProtectionSetting=0x%x\n", newProtectionSetting);
+		OutputDebugStringA(tempString);
+
+		//MessageBoxA(0, tempString, "oldProtect", 1);
+		//OutputDebugStringA("\nAfter VirtualProtect successful 20\n");
+	}
+
+
+
+
+
+	/*
+	OutputDebugStringA("Before OutputDebugStringA(b[0]);\n");
+	OutputDebugStringA(b[0]);
+	OutputDebugStringA("After OutputDebugStringA(b[0]);\n");
+	*/
+
 
 
 	//OutputDebugStringA("\nBefore strcpy_s(oldText, originalTextLength, (char*)address);\n");
