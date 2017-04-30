@@ -185,9 +185,17 @@ void APIENTRY patchAcceleratorTable() {
 
 	// output all ACCEL entries so far (just for fun)
 	
-	ACCEL lpAccelDst[8];
+	ACCEL lpAccelDst[9];
 	CopyAcceleratorTable(hAccelSrc, lpAccelDst, countInitialTableEntries);
-	for (unsigned int a = 0; a < countInitialTableEntries; a++)
+
+	ACCEL newACELL;
+	newACELL.fVirt = VK_F6;
+	newACELL.key = 0x0d;
+	newACELL.cmd = 116;
+
+	lpAccelDst[8] = newACELL;
+
+	for (unsigned int a = 0; a < countInitialTableEntries+1; a++)
 	{
 		//sprintf_s(buffer, 100, "\na[%d]: fVirt=0x%x key=0x%x cmd=%x", a, lpAccelDst[a].fVirt, lpAccelDst[a].key, lpAccelDst[a].cmd);
 		sprintf_s(buffer, 100, "\na[%d]", a);
