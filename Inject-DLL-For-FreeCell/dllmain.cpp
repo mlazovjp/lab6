@@ -7,10 +7,14 @@
 #include <string>
 #include <vector>
 #include <memory.h>
+#include "resource.h"
 
 // Req 1
 void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 {
+	OutputDebugStringA("\n**************************************************************");
+	OutputDebugStringA("Start of changeOffsetThat_move_is_not_allowedTo(char* newText)\n");
+
 	DWORD address = 0x01010C04;		// location of string in memory to change
 
 	const unsigned int originalTextLength = 26;
@@ -103,13 +107,17 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	// ********************************************************************************************
 
 	
-	//OutputDebugStringA("Lab06: End of changeOffsetThat_move_is_not_allowedTo(char* newValue)\n");
+	OutputDebugStringA("\nEnd of changeOffsetThat_move_is_not_allowedTo(char* newText)");
+	OutputDebugStringA("**************************************************************\n");
 
 }
 
 
 void APIENTRY setGamesWonTo(int numberOfGamesWon)
 {
+
+	OutputDebugStringA("\n**************************************************************");
+	OutputDebugStringA("Start of setGamesWonTo(int numberOfGamesWon)\n");
 
 	//log("setGamesWonTo: Start\n");
 	HKEY key;
@@ -136,8 +144,103 @@ void APIENTRY setGamesWonTo(int numberOfGamesWon)
 	}
 	RegCloseKey(key);
 
-	//log("setGamesWon: End\n");
+	OutputDebugStringA("\nEnd of setGamesWonTo(int numberOfGamesWon)");
+	OutputDebugStringA("**************************************************************\n");
 }
+
+
+void APIENTRY patchAcceleratorTable() {
+
+	OutputDebugStringA("\n**************************************************************");
+	OutputDebugStringA("Start of patchAcceleratorTable()\n");
+
+	char buffer[100];
+
+	// ********************************************************************************************
+	// First, let's view the current accelerator table
+	// ********************************************************************************************
+	// get handle to existing accelerator table FREEMENU
+	//HINSTANCE hInstance = GetModuleHandle(NULL);
+	HACCEL hAccelSrc;					// handle to accelerator table
+	//LPCTSTR lpTableName = L"OurAcc";
+	//LPCTSTR lpTableName = L"OurAccelerator";
+	//hAccelSrc = LoadAccelerators(hInstance, MAKEINTRESOURCE(1033));
+	//hAccelSrc = LoadAccelerators(hInstance, MAKEINTRESOURCE(OurAccelerator));
+
+	
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	LPCTSTR lpTableName = L"FREEMENU";
+	hAccelSrc = LoadAccelerators(hInstance, lpTableName);
+
+
+	sprintf_s(buffer, 100, "\nhAccelSrc=0x%x\n", (int)hAccelSrc);
+	OutputDebugStringA(buffer);
+
+	// how many ACCEL entries in the table?
+	unsigned int countInitialTableEntries = 0;
+	int cAccelEntries = 0;
+	countInitialTableEntries = CopyAcceleratorTable(hAccelSrc, 0, cAccelEntries);
+	sprintf_s(buffer, 100, "\ncountInitialTableEntries=%d\n", countInitialTableEntries);		// should be 8
+	OutputDebugStringA(buffer);
+
+	// output all ACCEL entries so far (just for fun)
+	
+	ACCEL lpAccelDst[8];
+	CopyAcceleratorTable(hAccelSrc, lpAccelDst, countInitialTableEntries);
+	for (unsigned int a = 0; a < countInitialTableEntries; a++)
+	{
+		//sprintf_s(buffer, 100, "\na[%d]: fVirt=0x%x key=0x%x cmd=%x", a, lpAccelDst[a].fVirt, lpAccelDst[a].key, lpAccelDst[a].cmd);
+		sprintf_s(buffer, 100, "\na[%d]", a);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  fVirt=0x%x", lpAccelDst[a].fVirt);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  key=0x%x", lpAccelDst[a].key);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  cmd=%x", lpAccelDst[a].cmd);
+		OutputDebugStringA(buffer);
+	}
+
+	// ********************************************************************************************
+	// Create a string name for the copied accelerator table
+	// ********************************************************************************************
+	//
+	
+	//LPTSTR newAccelName = MAKEINTRESOURCE();
+	//sprintf_s(buffer, 100, "newAccelName=%ls", newAccelName);
+	//OutputDebugStringA(buffer);
+
+
+	DWORD address = 0x01001488;
+	char* originalTextAddress;
+	originalTextAddress = (char *)address;
+	sprintf_s(buffer, 100, "originalTextAddress");
+	//OutputDebugString(buffer);
+	OutputDebugStringA(originalTextAddress);
+
+
+	// ********************************************************************************************
+
+
+
+	// ********************************************************************************************
+	// Then let's make a copy
+	// ********************************************************************************************
+
+	// ********************************************************************************************
+
+
+
+	// ********************************************************************************************
+	// Then let's use the new one
+	// ********************************************************************************************
+
+	// ********************************************************************************************
+
+	OutputDebugStringA("\nEnd of patchAcceleratorTable()");
+	OutputDebugStringA("**************************************************************\n");
+
+}
+
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -159,8 +262,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 		// req 3
 
-		// req 4
-		// Make VK_F10 into VK_F6
+		// req 4 (Make VK_F10 into VK_F6) and req 5 (Ctrl-Shift-F2 wins the game)
+		patchAcceleratorTable();
+
+
 		break;
 
 	case DLL_THREAD_ATTACH:
