@@ -37,10 +37,8 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	}
 	b[25] = "\0";
 	
-	//b[0] = originalTextAddress;
 	OutputDebugStringA("\noldString=");
 	sprintf_s(oldString, 26, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16], b[17], b[18], b[19], b[20], b[21], b[22], b[23], b[24], b[25]);
-	//sprintf_s(oldString, 26, "%s", b[0]);
 	OutputDebugStringA(oldString);
 	// ********************************************************************************************
 
@@ -72,9 +70,6 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	// ********************************************************************************************
 	// Change contents of the memory pages to use the modified text
 	// ********************************************************************************************
-	//OutputDebugStringA("\newText");
-	//OutputDebugStringA(newText);
-
 	OutputDebugStringA("\nModifying string");
 	sprintf_s(tempString, 100, "newText=%s\n", newText);
 	OutputDebugStringA(tempString);
@@ -87,14 +82,9 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	
 	for (unsigned int i = 0; i < strlen(newText) - 1; i++)
 	{
-		//b[i] = originalTextAddress + 2 * i;
 		*(originalTextAddress + 2 * i) = newText[i];
 		OutputDebugStringA(originalTextAddress + 2 * i);
 	}
-	//b[25] = "\0";
-	
-
-
 	// ********************************************************************************************
 
 	
@@ -129,47 +119,10 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	OutputDebugStringA("modifiedString=");
 	sprintf_s(modifiedString, 18, "%s", originalTextAddress);
 	OutputDebugStringA(modifiedString);
-	//MessageBoxA(0, modifiedString, "modifiedString", 1);
 	// ********************************************************************************************
-	/*
-	// ********************************************************************************************
-	// Make sure it was set correctly by a different way
-	// ********************************************************************************************
-	char resultantString[originalTextLength];
-	char* c[originalTextLength];
-	*/
-
-	/*
-	for (unsigned int i = 0; i < originalTextLength - 1; i++)
-	{
-		c[i] = originalTextAddress + 2 * i;
-		sprintf_s(resultantString, 100, "%s", c[i]);
-		OutputDebugStringA(resultantString);
-	}
-	c[25] = "\0";
-	*/
-	//c[0] = originalTextAddress;
-
-	/*
-	c[0] = "This is just a test!";
-	OutputDebugStringA("\nresultantString=");
-	//sprintf_s(resultantString, 100, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17], c[18], c[19], c[20], c[21], c[22], c[23], c[24], c[25]);
-	sprintf_s(resultantString, 100, "%s", c[0]);
-	OutputDebugStringA(resultantString);
-	*/
-	// ********************************************************************************************
-
-
-
-
-
-	
-
 	
 	OutputDebugStringA("\nEnd of changeOffsetThat_move_is_not_allowedTo(char* newText)");
 	OutputDebugStringA("**************************************************************\n");
-
-	MessageBoxA(0, "End of changeOffsetThat_move_is_not_allowedTo(char* newText)", "Debug", 1);
 
 }
 
@@ -180,27 +133,22 @@ void APIENTRY setGamesWonTo(int numberOfGamesWon)
 	OutputDebugStringA("\n**************************************************************");
 	OutputDebugStringA("Start of setGamesWonTo(int numberOfGamesWon)\n");
 
-	//log("setGamesWonTo: Start\n");
 	HKEY key;
 
 	if (RegOpenKey(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Applets\\FreeCell"), &key) != ERROR_SUCCESS)
 	{
-		//log("setGamesWon: Unable to open registry key");
 		MessageBoxA(0, "setGamesWon", "Unable to open registry key", 1);
 	}
 	else
 	{
-		//log("setGamesWon: Able to open registry key\n");
 		int decValue = 1000;
-		//gamesWon
 		if (RegSetValueEx(key,TEXT("won"), 0, REG_BINARY, (BYTE *)&numberOfGamesWon, sizeof(numberOfGamesWon)) != ERROR_SUCCESS)
 		{
 			MessageBoxA(0, "setGamesWon()", "Unable to set registry value value_name", 1);
-			//log("setGamesWon: Unable to set registry value value_name\n");
 		}
 		else
 		{
-			//log("setGamesWon: Able to set registry value value_name\n");
+			
 		}
 	}
 	RegCloseKey(key);
@@ -237,10 +185,6 @@ void APIENTRY nextValidMoveWinsTheGame(bool flag) {
 	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
 	char tempString[100];
 	SIZE_T dwSize = 2;
-
-	//VirtualQuery()
-
-	//originalProtectionSetting 
 
 	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &originalProtectionSetting))
 	{
@@ -302,36 +246,8 @@ void APIENTRY nextValidMoveWinsTheGame(bool flag) {
 	}
 	// ********************************************************************************************
 
-
-
-	/*
-	// ********************************************************************************************
-	// Change protection for the memory pages at that address to what it had been prior to patching
-	// ********************************************************************************************
-	unsigned long previousProtectionSetting;
-	newProtectionSetting = originalProtectionSetting;
-	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &previousProtectionSetting))
-	{
-		MessageBoxA(0, "VirtualProtect revert to original failed", "b[0]", 1);
-	}
-	else
-	{
-		OutputDebugStringA("\nVirtualProtect revert to original successful\n");
-		sprintf_s(tempString, 100, "Setting prior to reverting to original=0x%x\n", previousProtectionSetting);
-		OutputDebugStringA(tempString);
-
-		sprintf_s(tempString, 100, "The new ProtectionSetting is now=0x%x\n", newProtectionSetting);
-		OutputDebugStringA(tempString);
-		OutputDebugStringA("\n");
-
-	}
-	// ********************************************************************************************
-	*/
-
 	OutputDebugStringA("\nEnd of nextValidMoveWinsTheGame(bool flag)");
 	OutputDebugStringA("**************************************************************\n");
-
-
 
 }
 
@@ -343,56 +259,89 @@ void APIENTRY patchAcceleratorTable() {
 
 	char buffer[100];
 
-
 	// ********************************************************************************************
-	// Change protection for the memory pages at that address so we can modify the text
+	// First, let's view the current accelerator table to ensure we are in the correct place
 	// ********************************************************************************************
-	/*DWORD oldTableAddress = 0x29020f19;
-	unsigned long originalProtectionSetting;
-	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
-	char tempString[100];
-	SIZE_T dwSize = 1000;
+	// Get handle to existing accelerator table FREEMENU
 
-	if (!VirtualProtect((LPVOID)oldTableAddress, dwSize, newProtectionSetting, &originalProtectionSetting))
-	{
-		MessageBoxA(0, "VirtualProtect failed", "b[0]", 1);
-	}
-	else
-	{
-		OutputDebugStringA("\nVirtualProtect change to PAGE_EXECUTE_WRITECOPY successful\n");
-		sprintf_s(tempString, 100, "originalProtectionSetting=0x%x\n", originalProtectionSetting);
-		OutputDebugStringA(tempString);
-
-		sprintf_s(tempString, 100, "newProtectionSetting=0x%x\n", newProtectionSetting);
-		OutputDebugStringA(tempString);
-	}
-	*/
-	// ********************************************************************************************
-
-
-
-
-	// ********************************************************************************************
-	// First, let's view the current accelerator table
-	// ********************************************************************************************
-	
-
-	// get handle to existing accelerator table FREEMENU
-	HACCEL hAccelSrc;					// handle to accelerator table
 	HINSTANCE hInstance = GetModuleHandle(NULL);
-	LPCTSTR lpTableName = L"FREEMENU";
-	hAccelSrc = LoadAccelerators(hInstance, lpTableName);
 
-
-	sprintf_s(buffer, 100, "\nhAccelSrc=0x%x\n", (int)hAccelSrc);
+	HACCEL hAccelFREEMENU;					// handle to FREEMENU accelerator table
+	LPCTSTR lpTableNameFREEMENU = L"FREEMENU";
+	hAccelFREEMENU = LoadAccelerators(hInstance, lpTableNameFREEMENU);
+	sprintf_s(buffer, 100, "\nhAccelFREEMENU=0x%x\n", (int)hAccelFREEMENU);
 	OutputDebugStringA(buffer);
 
-	// create new accelerator table
+
+	// how many ACCEL entries in the table?
+	unsigned int countInitialTableEntriesFREEMENU = 0;
+	int cAccelEntriesFREEMENU = 0;
+	countInitialTableEntriesFREEMENU = CopyAcceleratorTable(hAccelFREEMENU, 0, cAccelEntriesFREEMENU);
+	sprintf_s(buffer, 100, "\ncountInitialTableEntriesFREEMENU=%d\n", countInitialTableEntriesFREEMENU);		// should be 8
+	OutputDebugStringA(buffer);
+
+	OutputDebugStringA("FREEMENU entries:");
+	OutputDebugStringA("*****************************************************");
+
+	// Having a hard time accessing original accelerator menu entries, so will output copy
+	ACCEL lpAccelFREEMENUCopy[9];			// will hold accelerator table from copy
+	CopyAcceleratorTable(hAccelFREEMENU, lpAccelFREEMENUCopy, countInitialTableEntriesFREEMENU);
+
+	ACCEL newACELL;
+	newACELL.fVirt = FCONTROL | FSHIFT | FVIRTKEY;	newACELL.key = VK_F2; newACELL.cmd = 116;	// new!!!
+	lpAccelFREEMENUCopy[8] = newACELL;
+
+	for (unsigned int a = 0; a < countInitialTableEntriesFREEMENU + 1; a++)
+	{
+		//sprintf_s(buffer, 100, "\na[%d]: fVirt=0x%x key=0x%x cmd=%x", a, lpAccelDst[a].fVirt, lpAccelDst[a].key, lpAccelDst[a].cmd);
+		sprintf_s(buffer, 100, "\na[%d]", a);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  fVirt=0x%x", lpAccelFREEMENUCopy[a].fVirt);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  key=0x%x", lpAccelFREEMENUCopy[a].key);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  cmd=%x", lpAccelFREEMENUCopy[a].cmd);
+		OutputDebugStringA(buffer);
+	}
+	OutputDebugStringA("*****************************************************");
+
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Create new accelerator table with the hotkeys we want to use
+	// ********************************************************************************************
+	// Try using one created in resource.rc
+	/*
+	HACCEL hAccelPTCHMENU;
+	LPCTSTR lpTableNamePTCHMENU = L"PTCHMENU";
+	hAccelPTCHMENU = LoadAccelerators(hInstance, lpTableNamePTCHMENU);
+	sprintf_s(buffer, 100, "\nhAccelPTCHMENU=0x%x\n", (int)hAccelPTCHMENU);
+	OutputDebugStringA(buffer);
+	*/
+
+
+	// ********************************************************************************************
+	// Create new accelerator table with the hotkeys we want to use
+	// ********************************************************************************************
 	LPACCEL myTable = new ACCEL[9];
-	myTable[0].cmd = 114;
-	myTable[0].key = VK_F6;
-	myTable[0].fVirt = FCONTROL | FSHIFT | FVIRTKEY;
-	HACCEL hAccel = CreateAcceleratorTable(myTable, 1);
+	myTable[0].cmd = 106; myTable[0].key = VK_F1; myTable[0].fVirt = FVIRTKEY;
+	myTable[1].cmd = 106; myTable[1].key = VK_F1; myTable[1].fVirt = FSHIFT | FVIRTKEY;
+	myTable[2].cmd = 102; myTable[2].key = VK_F2; myTable[2].fVirt = FVIRTKEY;
+	myTable[3].cmd = 103; myTable[3].key = VK_F3; myTable[3].fVirt = FVIRTKEY;
+	myTable[4].cmd = 105; myTable[4].key = VK_F4; myTable[4].fVirt =  FVIRTKEY;
+	myTable[5].cmd = 109; myTable[5].key = VK_F5; myTable[5].fVirt =  FVIRTKEY;
+	myTable[6].cmd = 115; myTable[6].key = VK_F10; myTable[6].fVirt = FVIRTKEY;
+	myTable[7].cmd = 114; myTable[7].key = VK_F6; myTable[7].fVirt = FCONTROL | FSHIFT | FVIRTKEY;		// changed from F10 to F6
+	myTable[8].cmd = 116; myTable[8].key = VK_F2; myTable[8].fVirt = FCONTROL | FSHIFT | FVIRTKEY;		// new!!!
+
+	// create new accelerator table based off of ACCELL array, above
+	HACCEL hAccelmyTable = CreateAcceleratorTable(myTable, 9);
+	sprintf_s(buffer, 100, "\nhAccelmyTable=0x%x\n", (int)hAccelmyTable);
+	OutputDebugStringA(buffer);
+
+
+	/*
 
 	// 0x00320750 ?
 	DWORD address = 0x01008374;
@@ -413,7 +362,7 @@ void APIENTRY patchAcceleratorTable() {
 
 
 	//_hMainWnd
-
+	*/
 
 	/*
 	ACCEL lpAccelDst[9];
@@ -430,18 +379,17 @@ void APIENTRY patchAcceleratorTable() {
 	OutputDebugStringA(buffer);
 	*/
 
-
+	/*
 	// how many ACCEL entries in the table?
 	unsigned int countInitialTableEntries = 0;
 	int cAccelEntries = 0;
-	countInitialTableEntries = CopyAcceleratorTable(hAccelSrc, 0, cAccelEntries);
+	countInitialTableEntries = CopyAcceleratorTable(hAccelFREEMENU, 0, cAccelEntries);
 	sprintf_s(buffer, 100, "\ncountInitialTableEntries=%d\n", countInitialTableEntries);		// should be 8
 	OutputDebugStringA(buffer);
 
 	// output all ACCEL entries so far (just for fun)
-	/*
 	ACCEL lpAccelDst[9];
-	CopyAcceleratorTable(hAccelSrc, lpAccelDst, countInitialTableEntries);
+	CopyAcceleratorTable(hAccelFREEMENU, lpAccelDst, countInitialTableEntries);
 
 	ACCEL newACELL;
 	newACELL.fVirt = VK_F6;
@@ -462,7 +410,7 @@ void APIENTRY patchAcceleratorTable() {
 		sprintf_s(buffer, 100, "  cmd=%x", lpAccelDst[a].cmd);
 		OutputDebugStringA(buffer);
 	}
-
+	*/
 	// ********************************************************************************************
 	// Create a string name for the copied accelerator table
 	// ********************************************************************************************
@@ -477,8 +425,24 @@ void APIENTRY patchAcceleratorTable() {
 	char* originalTextAddress;
 	originalTextAddress = (char *)address;
 	sprintf_s(buffer, 100, "originalTextAddress");
-	//OutputDebugString(buffer);
-	OutputDebugStringA(originalTextAddress);
+
+	for (unsigned int a = 0; a < 10; a++) {
+		buffer[a] = *(originalTextAddress + 2 * a);
+		//OutputDebugStringA(buffer);
+	}
+	OutputDebugStringA("\n");
+	OutputDebugStringA(buffer);
+
+	//DWORD address = 0x01010C04;		// location of string in memory to change
+	/*
+	const unsigned int originalTextLength = 26;
+	const char originalTextExpected[] = "That move is not allowed.";
+
+	char* originalTextAddress;
+	char* modifiedTextAddress;
+	originalTextAddress = (char *)address;
+	modifiedTextAddress = (char *)address;
+	*/
 
 
 	// ********************************************************************************************
@@ -498,7 +462,6 @@ void APIENTRY patchAcceleratorTable() {
 	// ********************************************************************************************
 
 	// ********************************************************************************************
-	*/
 	OutputDebugStringA("\nEnd of patchAcceleratorTable()");
 	OutputDebugStringA("**************************************************************\n");
 
@@ -516,8 +479,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 		// req 1
 		changeOffsetThat_move_is_not_allowedTo("Not in this game.        ");
-		//changeOffsetThat_move_is_not_allowedTo("Not in this game.");
-		MessageBoxA(0, "After changeOffsetThat_move_is_not_allowedTo(char* newText)", "Main", 1);
 
 		// req 2
 		setGamesWonTo(1000);
@@ -526,7 +487,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 		nextValidMoveWinsTheGame(true);
 
 		// req 4 (Make VK_F10 into VK_F6) and req 5 (Ctrl-Shift-F2 wins the game)
-		//patchAcceleratorTable();
+		patchAcceleratorTable();
 
 
 		break;
