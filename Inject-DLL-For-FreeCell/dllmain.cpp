@@ -48,7 +48,7 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	unsigned long originalProtectionSetting;
 	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
 	char tempString[100];
-	SIZE_T dwSize = 80;
+	SIZE_T dwSize = 1;
 
 	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &originalProtectionSetting))
 	{
