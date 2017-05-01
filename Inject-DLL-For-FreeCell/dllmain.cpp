@@ -149,6 +149,132 @@ void APIENTRY setGamesWonTo(int numberOfGamesWon)
 }
 
 
+
+void APIENTRY nextValidMoveWinsTheGame(bool flag) {
+
+
+	OutputDebugStringA("\n**************************************************************");
+	OutputDebugStringA("Start of nextValidMoveWinsTheGame(bool flag)\n");
+
+	char buffer[100];
+
+	// ********************************************************************************************
+	// Let's access _bCheating section of memory ... see if we can read its current value
+	// ********************************************************************************************
+	DWORD address = 0x01007130;		// location of variable in memory to change
+	DWORD* _bCheating = (DWORD *)address;
+	OutputDebugStringA("Original _bCheating=");
+	sprintf_s(buffer, 26, "%x", *_bCheating);
+	OutputDebugStringA(buffer);
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Change permissions for that DWORD in memory so we can patch it later
+	// ********************************************************************************************
+	unsigned long originalProtectionSetting;
+	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
+	char tempString[100];
+	SIZE_T dwSize = 2;
+
+	//VirtualQuery()
+
+	//originalProtectionSetting 
+
+	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &originalProtectionSetting))
+	{
+		MessageBoxA(0, "VirtualProtect failed", " nextValidMoveWinsTheGame(bool flag)", 1);
+	}
+	else
+	{
+		OutputDebugStringA("\nVirtualProtect change to PAGE_EXECUTE_WRITECOPY successful\n");
+		sprintf_s(buffer, 100, "originalProtectionSetting=0x%x\n", originalProtectionSetting);
+		OutputDebugStringA(buffer);
+
+		sprintf_s(buffer, 100, "newProtectionSetting=0x%x\n", newProtectionSetting);
+		OutputDebugStringA(buffer);
+	}
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Change value to 2
+	// ********************************************************************************************
+	OutputDebugStringA("\nModifying DWORD");
+	*_bCheating = 2;
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Verify that it was properly set to 2
+	// ********************************************************************************************
+	//DWORD address = 0x01007130;		// location of variable in memory to change
+	//DWORD* _bCheating = (DWORD *)address;
+	OutputDebugStringA("Modified _bCheating=");
+	sprintf_s(buffer, 26, "%x", *_bCheating);
+	OutputDebugStringA(buffer);
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Revert permissions for that DWORD in memory back to what it had been
+	// ********************************************************************************************
+	//unsigned long originalProtectionSetting;
+	//unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
+	//char tempString[100];
+	//SIZE_T dwSize = 2;
+	unsigned long previousProtectionSetting;
+	newProtectionSetting = originalProtectionSetting;
+
+	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &previousProtectionSetting))
+	{
+		MessageBoxA(0, "VirtualProtect revert to original failed", " nextValidMoveWinsTheGame(bool flag)", 1);
+	}
+	else
+	{
+		OutputDebugStringA("\nVirtualProtect revert to original successful\n");
+		sprintf_s(buffer, 100, "originalProtectionSetting=0x%x\n", originalProtectionSetting);
+		OutputDebugStringA(buffer);
+
+		sprintf_s(buffer, 100, "newProtectionSetting=0x%x\n", newProtectionSetting);
+		OutputDebugStringA(buffer);
+	}
+	// ********************************************************************************************
+
+
+
+	/*
+	// ********************************************************************************************
+	// Change protection for the memory pages at that address to what it had been prior to patching
+	// ********************************************************************************************
+	unsigned long previousProtectionSetting;
+	newProtectionSetting = originalProtectionSetting;
+	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &previousProtectionSetting))
+	{
+		MessageBoxA(0, "VirtualProtect revert to original failed", "b[0]", 1);
+	}
+	else
+	{
+		OutputDebugStringA("\nVirtualProtect revert to original successful\n");
+		sprintf_s(tempString, 100, "Setting prior to reverting to original=0x%x\n", previousProtectionSetting);
+		OutputDebugStringA(tempString);
+
+		sprintf_s(tempString, 100, "The new ProtectionSetting is now=0x%x\n", newProtectionSetting);
+		OutputDebugStringA(tempString);
+		OutputDebugStringA("\n");
+
+	}
+	// ********************************************************************************************
+	*/
+
+	OutputDebugStringA("\nEnd of nextValidMoveWinsTheGame(bool flag)");
+	OutputDebugStringA("**************************************************************\n");
+
+
+
+}
+
+
 void APIENTRY patchAcceleratorTable() {
 
 	OutputDebugStringA("\n**************************************************************");
@@ -156,18 +282,42 @@ void APIENTRY patchAcceleratorTable() {
 
 	char buffer[100];
 
+
+	// ********************************************************************************************
+	// Change protection for the memory pages at that address so we can modify the text
+	// ********************************************************************************************
+	/*DWORD oldTableAddress = 0x29020f19;
+	unsigned long originalProtectionSetting;
+	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
+	char tempString[100];
+	SIZE_T dwSize = 1000;
+
+	if (!VirtualProtect((LPVOID)oldTableAddress, dwSize, newProtectionSetting, &originalProtectionSetting))
+	{
+		MessageBoxA(0, "VirtualProtect failed", "b[0]", 1);
+	}
+	else
+	{
+		OutputDebugStringA("\nVirtualProtect change to PAGE_EXECUTE_WRITECOPY successful\n");
+		sprintf_s(tempString, 100, "originalProtectionSetting=0x%x\n", originalProtectionSetting);
+		OutputDebugStringA(tempString);
+
+		sprintf_s(tempString, 100, "newProtectionSetting=0x%x\n", newProtectionSetting);
+		OutputDebugStringA(tempString);
+	}
+	*/
+	// ********************************************************************************************
+
+
+
+
 	// ********************************************************************************************
 	// First, let's view the current accelerator table
 	// ********************************************************************************************
-	// get handle to existing accelerator table FREEMENU
-	//HINSTANCE hInstance = GetModuleHandle(NULL);
-	HACCEL hAccelSrc;					// handle to accelerator table
-	//LPCTSTR lpTableName = L"OurAcc";
-	//LPCTSTR lpTableName = L"OurAccelerator";
-	//hAccelSrc = LoadAccelerators(hInstance, MAKEINTRESOURCE(1033));
-	//hAccelSrc = LoadAccelerators(hInstance, MAKEINTRESOURCE(OurAccelerator));
-
 	
+
+	// get handle to existing accelerator table FREEMENU
+	HACCEL hAccelSrc;					// handle to accelerator table
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	LPCTSTR lpTableName = L"FREEMENU";
 	hAccelSrc = LoadAccelerators(hInstance, lpTableName);
@@ -175,6 +325,50 @@ void APIENTRY patchAcceleratorTable() {
 
 	sprintf_s(buffer, 100, "\nhAccelSrc=0x%x\n", (int)hAccelSrc);
 	OutputDebugStringA(buffer);
+
+	// create new accelerator table
+	LPACCEL myTable = new ACCEL[9];
+	myTable[0].cmd = 114;
+	myTable[0].key = VK_F6;
+	myTable[0].fVirt = FCONTROL | FSHIFT | FVIRTKEY;
+	HACCEL hAccel = CreateAcceleratorTable(myTable, 1);
+
+	// 0x00320750 ?
+	DWORD address = 0x01008374;
+	HWND* _hMainWndtAddress;
+	_hMainWndtAddress = (HWND *)address;
+	sprintf_s(buffer, 100, "\n_hMainWndtAddress=0x%x\n", _hMainWndtAddress);
+	OutputDebugStringA(buffer);
+
+	// MSG? = 0x000DFEC0
+	int result;
+	address = 0x000DFEC0;
+	LPMSG lpMsg = *(LPMSG *)address;
+	result = TranslateAcceleratorW(*_hMainWndtAddress, hAccel, lpMsg);
+	sprintf_s(buffer, 100, "\n_lpMsg=0x%x\n", lpMsg);
+	OutputDebugStringA(buffer);
+	sprintf_s(buffer, 100, "\n_result=%d\n", result);
+	OutputDebugStringA(buffer);
+
+
+	//_hMainWnd
+
+
+	/*
+	ACCEL lpAccelDst[9];
+	ACCEL newACELL;
+	newACELL.fVirt = VK_F6;
+	newACELL.key = 0x0d;
+	newACELL.cmd = 116;
+	lpAccelDst[0] = newACELL;
+	*/
+
+	/*bool isDestroyed;
+	isDestroyed = DestroyAcceleratorTable(hAccelSrc);
+	sprintf_s(buffer, 100, "\nisDestroyed ==%x\n", isDestroyed);		// should be 8
+	OutputDebugStringA(buffer);
+	*/
+
 
 	// how many ACCEL entries in the table?
 	unsigned int countInitialTableEntries = 0;
@@ -184,7 +378,7 @@ void APIENTRY patchAcceleratorTable() {
 	OutputDebugStringA(buffer);
 
 	// output all ACCEL entries so far (just for fun)
-	
+	/*
 	ACCEL lpAccelDst[9];
 	CopyAcceleratorTable(hAccelSrc, lpAccelDst, countInitialTableEntries);
 
@@ -243,7 +437,7 @@ void APIENTRY patchAcceleratorTable() {
 	// ********************************************************************************************
 
 	// ********************************************************************************************
-
+	*/
 	OutputDebugStringA("\nEnd of patchAcceleratorTable()");
 	OutputDebugStringA("**************************************************************\n");
 
@@ -258,17 +452,15 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		//MessageBoxA(0, "Pause", "Pause", 1);
 
-		
 		// req 1
-		//changeOffsetThat_move_is_not_allowedTo("Not in this game.");
 		changeOffsetThat_move_is_not_allowedTo("Not in this game.        ");
 
 		// req 2
 		setGamesWonTo(1000);
 
 		// req 3
+		//nextValidMoveWinsTheGame(true);
 
 		// req 4 (Make VK_F10 into VK_F6) and req 5 (Ctrl-Shift-F2 wins the game)
 		patchAcceleratorTable();
