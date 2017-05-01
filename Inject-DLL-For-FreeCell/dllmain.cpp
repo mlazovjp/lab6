@@ -30,14 +30,17 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	// ********************************************************************************************
 	char oldString[originalTextLength];
 	char* b[originalTextLength];
-
+	/*
 	for (unsigned int i = 0; i < originalTextLength-1; i++)
 	{
 		b[i] = originalTextAddress + 2 * i;
 	}
 	b[25] = "\0";
+	*/
+	b[0] = originalTextAddress;
 	OutputDebugStringA("\noldString=");
-	sprintf_s(oldString, 26, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16], b[17], b[18], b[19], b[20], b[21], b[22], b[23], b[24], b[25]);
+	//sprintf_s(oldString, 26, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15], b[16], b[17], b[18], b[19], b[20], b[21], b[22], b[23], b[24], b[25]);
+	sprintf_s(oldString, 26, "%s", b[0]);
 	OutputDebugStringA(oldString);
 	// ********************************************************************************************
 
@@ -48,7 +51,7 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	unsigned long originalProtectionSetting;
 	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
 	char tempString[100];
-	SIZE_T dwSize = 1;
+	SIZE_T dwSize = 100;
 
 	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &originalProtectionSetting))
 	{
@@ -70,17 +73,8 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	// Change contents of the memory pages to use the modified text
 	// ********************************************************************************************
 	OutputDebugStringA("\nModifying string");
+	sprintf_s(tempString, 100, "newText=%s\n", newText);
 	memcpy_s(originalTextAddress, strlen(newText), newText, strlen(newText));
-	// ********************************************************************************************
-
-
-	// ********************************************************************************************
-	// Make a copy of the modifiedl text located at originalTextAddress
-	// ********************************************************************************************
-	char modifiedString[originalTextLength];
-	OutputDebugStringA("modifiedString=");
-	sprintf_s(modifiedString, 26, "%s", originalTextAddress);
-	OutputDebugStringA(modifiedString);
 	// ********************************************************************************************
 
 
@@ -89,7 +83,7 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 	// ********************************************************************************************
 	unsigned long previousProtectionSetting;
 	newProtectionSetting = originalProtectionSetting;
-	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &previousProtectionSetting))
+	if (!VirtualProtect((LPVOID)address, dwSize, PAGE_READONLY, &previousProtectionSetting))
 	{
 		MessageBoxA(0, "VirtualProtect revert to original failed", "b[0]", 1);
 	}
@@ -102,13 +96,56 @@ void APIENTRY changeOffsetThat_move_is_not_allowedTo(char* newText)
 		sprintf_s(tempString, 100, "The new ProtectionSetting is now=0x%x\n", newProtectionSetting);
 		OutputDebugStringA(tempString);
 		OutputDebugStringA("\n");
-
 	}
 	// ********************************************************************************************
+
+
+
+
+	// ********************************************************************************************
+	// Make a copy of the modified text located at originalTextAddress
+	// ********************************************************************************************
+	char modifiedString[originalTextLength];
+	OutputDebugStringA("modifiedString=");
+	sprintf_s(modifiedString, 26, "%s", originalTextAddress);
+	OutputDebugStringA(modifiedString);
+	//MessageBoxA(0, modifiedString, "modifiedString", 1);
+	// ********************************************************************************************
+
+	// ********************************************************************************************
+	// Make sure it was set correctly by a different way
+	// ********************************************************************************************
+	char resultantString[originalTextLength];
+	char* c[originalTextLength];
+
+	/*
+	for (unsigned int i = 0; i < originalTextLength - 1; i++)
+	{
+		c[i] = originalTextAddress + 2 * i;
+		sprintf_s(resultantString, 100, "%s", c[i]);
+		OutputDebugStringA(resultantString);
+	}
+	c[25] = "\0";
+	*/
+	//c[0] = originalTextAddress;
+	c[0] = "This is just a test!";
+	OutputDebugStringA("\nresultantString=");
+	//sprintf_s(resultantString, 100, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16], c[17], c[18], c[19], c[20], c[21], c[22], c[23], c[24], c[25]);
+	sprintf_s(resultantString, 100, "%s", c[0]);
+	OutputDebugStringA(resultantString);
+	// ********************************************************************************************
+
+
+
+
+
+	
 
 	
 	OutputDebugStringA("\nEnd of changeOffsetThat_move_is_not_allowedTo(char* newText)");
 	OutputDebugStringA("**************************************************************\n");
+
+	MessageBoxA(0, "End of changeOffsetThat_move_is_not_allowedTo(char* newText)", "Debug", 1);
 
 }
 
@@ -454,16 +491,17 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	case DLL_PROCESS_ATTACH:
 
 		// req 1
-		changeOffsetThat_move_is_not_allowedTo("Not in this game.        ");
+		//changeOffsetThat_move_is_not_allowedTo("Not in this game.        ");
+		//MessageBoxA(0, "After changeOffsetThat_move_is_not_allowedTo(char* newText)", "Main", 1);
 
 		// req 2
 		setGamesWonTo(1000);
 
 		// req 3
-		//nextValidMoveWinsTheGame(true);
+		nextValidMoveWinsTheGame(true);
 
 		// req 4 (Make VK_F10 into VK_F6) and req 5 (Ctrl-Shift-F2 wins the game)
-		patchAcceleratorTable();
+		//patchAcceleratorTable();
 
 
 		break;
@@ -475,4 +513,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	}
 	return TRUE;
 }
-
