@@ -272,7 +272,6 @@ void APIENTRY patchAcceleratorTable() {
 	sprintf_s(buffer, 100, "\nhAccelFREEMENU=0x%x\n", (int)hAccelFREEMENU);
 	OutputDebugStringA(buffer);
 
-
 	// how many ACCEL entries in the table?
 	unsigned int countInitialTableEntriesFREEMENU = 0;
 	int cAccelEntriesFREEMENU = 0;
@@ -280,32 +279,60 @@ void APIENTRY patchAcceleratorTable() {
 	sprintf_s(buffer, 100, "\ncountInitialTableEntriesFREEMENU=%d\n", countInitialTableEntriesFREEMENU);		// should be 8
 	OutputDebugStringA(buffer);
 
-	OutputDebugStringA("FREEMENU entries:");
-	OutputDebugStringA("*****************************************************");
-
-	// Having a hard time accessing original accelerator menu entries, so will output copy
-	ACCEL lpAccelFREEMENUCopy[9];			// will hold accelerator table from copy
-	CopyAcceleratorTable(hAccelFREEMENU, lpAccelFREEMENUCopy, countInitialTableEntriesFREEMENU);
-
-	ACCEL newACELL;
-	newACELL.fVirt = FCONTROL | FSHIFT | FVIRTKEY;	newACELL.key = VK_F2; newACELL.cmd = 116;	// new!!!
-	lpAccelFREEMENUCopy[8] = newACELL;
-
-	for (unsigned int a = 0; a < countInitialTableEntriesFREEMENU + 1; a++)
-	{
-		//sprintf_s(buffer, 100, "\na[%d]: fVirt=0x%x key=0x%x cmd=%x", a, lpAccelDst[a].fVirt, lpAccelDst[a].key, lpAccelDst[a].cmd);
-		sprintf_s(buffer, 100, "\na[%d]", a);
-		OutputDebugStringA(buffer);
-		sprintf_s(buffer, 100, "  fVirt=0x%x", lpAccelFREEMENUCopy[a].fVirt);
-		OutputDebugStringA(buffer);
-		sprintf_s(buffer, 100, "  key=0x%x", lpAccelFREEMENUCopy[a].key);
-		OutputDebugStringA(buffer);
-		sprintf_s(buffer, 100, "  cmd=%x", lpAccelFREEMENUCopy[a].cmd);
-		OutputDebugStringA(buffer);
-	}
-	OutputDebugStringA("*****************************************************");
 
 	// ********************************************************************************************
+	// Make a new accelerator table based off of FREEMENU
+	// ********************************************************************************************
+	// Make a copy of FREEMENU first
+	ACCEL lpAccelPTCHMENU[9];			// will hold accelerator table from copy
+	CopyAcceleratorTable(hAccelFREEMENU, lpAccelPTCHMENU, countInitialTableEntriesFREEMENU);
+
+	// add new entry to copied table
+	ACCEL newACELL;
+	newACELL.fVirt = FCONTROL | FSHIFT | FVIRTKEY;	newACELL.key = VK_F2; newACELL.cmd = 116;	// new!!!
+	lpAccelPTCHMENU[8] = newACELL;
+
+	OutputDebugStringA("\n****************************************************************************");
+	OutputDebugStringA("PTCHMENU table entries (don't forget to create accelerator from table!)");
+	OutputDebugStringA("****************************************************************************");
+
+	// output new table for debugging purposes
+	for (unsigned int a = 0; a < countInitialTableEntriesFREEMENU + 1; a++)
+	{
+		sprintf_s(buffer, 100, "\na[%d]", a);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  fVirt=0x%x", lpAccelPTCHMENU[a].fVirt);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  key=0x%x", lpAccelPTCHMENU[a].key);
+		OutputDebugStringA(buffer);
+		sprintf_s(buffer, 100, "  cmd=%x", lpAccelPTCHMENU[a].cmd);
+		OutputDebugStringA(buffer);
+	}
+	OutputDebugStringA("****************************************************************************");
+
+	// create new accelerator table using lpAccelPTCHMENU array as template
+	HACCEL hAccelPTCHMENU;
+	hAccelPTCHMENU = CreateAcceleratorTable(lpAccelPTCHMENU, countInitialTableEntriesFREEMENU + 1);
+	sprintf_s(buffer, 100, "\nhAccelPTCHMENU=0x%x\n", (int)hAccelPTCHMENU);
+	OutputDebugStringA(buffer);
+	// ********************************************************************************************
+
+
+	// ********************************************************************************************
+	// Q: Can we destroy FREEMENU accelerator?
+	// A: Apparently not
+	// ********************************************************************************************
+	/*
+	bool isDestroyed;
+	for (unsigned int a = 0; a < 100; a++)
+	{
+		isDestroyed = DestroyAcceleratorTable(hAccelFREEMENU);
+		sprintf_s(buffer, 100, "[%d] isDestroyed ==%x\n", a, isDestroyed);		// should be 8
+		OutputDebugStringA(buffer);
+	}
+	*/
+	
+
 
 
 	// ********************************************************************************************
@@ -324,6 +351,7 @@ void APIENTRY patchAcceleratorTable() {
 	// ********************************************************************************************
 	// Create new accelerator table with the hotkeys we want to use
 	// ********************************************************************************************
+	/*
 	LPACCEL myTable = new ACCEL[9];
 	myTable[0].cmd = 106; myTable[0].key = VK_F1; myTable[0].fVirt = FVIRTKEY;
 	myTable[1].cmd = 106; myTable[1].key = VK_F1; myTable[1].fVirt = FSHIFT | FVIRTKEY;
@@ -339,7 +367,7 @@ void APIENTRY patchAcceleratorTable() {
 	HACCEL hAccelmyTable = CreateAcceleratorTable(myTable, 9);
 	sprintf_s(buffer, 100, "\nhAccelmyTable=0x%x\n", (int)hAccelmyTable);
 	OutputDebugStringA(buffer);
-
+	*/
 
 	/*
 
@@ -420,7 +448,7 @@ void APIENTRY patchAcceleratorTable() {
 	//sprintf_s(buffer, 100, "newAccelName=%ls", newAccelName);
 	//OutputDebugStringA(buffer);
 
-
+	/*
 	DWORD address = 0x01001488;
 	char* originalTextAddress;
 	originalTextAddress = (char *)address;
@@ -432,6 +460,7 @@ void APIENTRY patchAcceleratorTable() {
 	}
 	OutputDebugStringA("\n");
 	OutputDebugStringA(buffer);
+	*/
 
 	//DWORD address = 0x01010C04;		// location of string in memory to change
 	/*
