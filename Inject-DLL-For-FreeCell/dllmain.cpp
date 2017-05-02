@@ -183,7 +183,8 @@ void APIENTRY nextValidMoveWinsTheGame(bool flag) {
 	// ********************************************************************************************
 	unsigned long originalProtectionSetting;
 	unsigned long newProtectionSetting = PAGE_EXECUTE_WRITECOPY;
-	char tempString[100];
+	//char tempString[100];
+	//char* tempString = new char[100];
 	SIZE_T dwSize = 2;
 
 	if (!VirtualProtect((LPVOID)address, dwSize, newProtectionSetting, &originalProtectionSetting))
@@ -287,6 +288,12 @@ void APIENTRY patchAcceleratorTable() {
 	ACCEL lpAccelPTCHMENU[9];			// will hold accelerator table from copy
 	CopyAcceleratorTable(hAccelFREEMENU, lpAccelPTCHMENU, countInitialTableEntriesFREEMENU);
 
+	// Patch	VK_F10, 114, CONTROL, SHIFT, VIRTKEY
+	// to
+	//			VK_F6, 114, CONTROL, SHIFT, VIRTKEY
+	lpAccelPTCHMENU[7].key = VK_F6;
+
+
 	// add new entry to copied table
 	ACCEL newACELL;
 	newACELL.fVirt = FCONTROL | FSHIFT | FVIRTKEY;	newACELL.key = VK_F2; newACELL.cmd = 116;	// new!!!
@@ -331,163 +338,31 @@ void APIENTRY patchAcceleratorTable() {
 		OutputDebugStringA(buffer);
 	}
 	*/
-	
-
+	// ********************************************************************************************
 
 
 	// ********************************************************************************************
-	// Create new accelerator table with the hotkeys we want to use
+	// Let's try to use TranslateAccelerator ...
 	// ********************************************************************************************
-	// Try using one created in resource.rc
-	/*
-	HACCEL hAccelPTCHMENU;
-	LPCTSTR lpTableNamePTCHMENU = L"PTCHMENU";
-	hAccelPTCHMENU = LoadAccelerators(hInstance, lpTableNamePTCHMENU);
-	sprintf_s(buffer, 100, "\nhAccelPTCHMENU=0x%x\n", (int)hAccelPTCHMENU);
-	OutputDebugStringA(buffer);
-	*/
+	// .. but we'll need lpMsg first!
+	DWORD addressHWND = 0x01008374;
+	HWND* _hMainWnd = (HWND *)addressHWND;
 
-
-	// ********************************************************************************************
-	// Create new accelerator table with the hotkeys we want to use
-	// ********************************************************************************************
-	/*
-	LPACCEL myTable = new ACCEL[9];
-	myTable[0].cmd = 106; myTable[0].key = VK_F1; myTable[0].fVirt = FVIRTKEY;
-	myTable[1].cmd = 106; myTable[1].key = VK_F1; myTable[1].fVirt = FSHIFT | FVIRTKEY;
-	myTable[2].cmd = 102; myTable[2].key = VK_F2; myTable[2].fVirt = FVIRTKEY;
-	myTable[3].cmd = 103; myTable[3].key = VK_F3; myTable[3].fVirt = FVIRTKEY;
-	myTable[4].cmd = 105; myTable[4].key = VK_F4; myTable[4].fVirt =  FVIRTKEY;
-	myTable[5].cmd = 109; myTable[5].key = VK_F5; myTable[5].fVirt =  FVIRTKEY;
-	myTable[6].cmd = 115; myTable[6].key = VK_F10; myTable[6].fVirt = FVIRTKEY;
-	myTable[7].cmd = 114; myTable[7].key = VK_F6; myTable[7].fVirt = FCONTROL | FSHIFT | FVIRTKEY;		// changed from F10 to F6
-	myTable[8].cmd = 116; myTable[8].key = VK_F2; myTable[8].fVirt = FCONTROL | FSHIFT | FVIRTKEY;		// new!!!
-
-	// create new accelerator table based off of ACCELL array, above
-	HACCEL hAccelmyTable = CreateAcceleratorTable(myTable, 9);
-	sprintf_s(buffer, 100, "\nhAccelmyTable=0x%x\n", (int)hAccelmyTable);
-	OutputDebugStringA(buffer);
-	*/
-
-	/*
-
-	// 0x00320750 ?
-	DWORD address = 0x01008374;
-	HWND* _hMainWndtAddress;
-	_hMainWndtAddress = (HWND *)address;
-	sprintf_s(buffer, 100, "\n_hMainWndtAddress=0x%x\n", _hMainWndtAddress);
-	OutputDebugStringA(buffer);
-
-	// MSG? = 0x000DFEC0
-	int result;
-	address = 0x000DFEC0;
-	LPMSG lpMsg = *(LPMSG *)address;
-	result = TranslateAcceleratorW(*_hMainWndtAddress, hAccel, lpMsg);
-	sprintf_s(buffer, 100, "\n_lpMsg=0x%x\n", lpMsg);
-	OutputDebugStringA(buffer);
-	sprintf_s(buffer, 100, "\n_result=%d\n", result);
-	OutputDebugStringA(buffer);
-
-
-	//_hMainWnd
-	*/
-
-	/*
-	ACCEL lpAccelDst[9];
-	ACCEL newACELL;
-	newACELL.fVirt = VK_F6;
-	newACELL.key = 0x0d;
-	newACELL.cmd = 116;
-	lpAccelDst[0] = newACELL;
-	*/
-
-	/*bool isDestroyed;
-	isDestroyed = DestroyAcceleratorTable(hAccelSrc);
-	sprintf_s(buffer, 100, "\nisDestroyed ==%x\n", isDestroyed);		// should be 8
-	OutputDebugStringA(buffer);
-	*/
-
-	/*
-	// how many ACCEL entries in the table?
-	unsigned int countInitialTableEntries = 0;
-	int cAccelEntries = 0;
-	countInitialTableEntries = CopyAcceleratorTable(hAccelFREEMENU, 0, cAccelEntries);
-	sprintf_s(buffer, 100, "\ncountInitialTableEntries=%d\n", countInitialTableEntries);		// should be 8
-	OutputDebugStringA(buffer);
-
-	// output all ACCEL entries so far (just for fun)
-	ACCEL lpAccelDst[9];
-	CopyAcceleratorTable(hAccelFREEMENU, lpAccelDst, countInitialTableEntries);
-
-	ACCEL newACELL;
-	newACELL.fVirt = VK_F6;
-	newACELL.key = 0x0d;
-	newACELL.cmd = 116;
-
-	lpAccelDst[8] = newACELL;
-
-	for (unsigned int a = 0; a < countInitialTableEntries+1; a++)
-	{
-		//sprintf_s(buffer, 100, "\na[%d]: fVirt=0x%x key=0x%x cmd=%x", a, lpAccelDst[a].fVirt, lpAccelDst[a].key, lpAccelDst[a].cmd);
-		sprintf_s(buffer, 100, "\na[%d]", a);
-		OutputDebugStringA(buffer);
-		sprintf_s(buffer, 100, "  fVirt=0x%x", lpAccelDst[a].fVirt);
-		OutputDebugStringA(buffer);
-		sprintf_s(buffer, 100, "  key=0x%x", lpAccelDst[a].key);
-		OutputDebugStringA(buffer);
-		sprintf_s(buffer, 100, "  cmd=%x", lpAccelDst[a].cmd);
-		OutputDebugStringA(buffer);
-	}
-	*/
-	// ********************************************************************************************
-	// Create a string name for the copied accelerator table
-	// ********************************************************************************************
-	//
-	
-	//LPTSTR newAccelName = MAKEINTRESOURCE();
-	//sprintf_s(buffer, 100, "newAccelName=%ls", newAccelName);
+	MSG msg;
+		
+	//LPMSG lpMsg = new LPMSG;
+	OutputDebugStringA("Before GetMessage()");
+	//BOOL didWeGetlpMsg = GetMessage(&msg, *_hMainWnd, WM_KEYFIRST, WM_KEYLAST);
+	//BOOL didWeGetlpMsg = GetMessage(&msg, NULL, 0, 0);
+	GetMessage(&msg, NULL, 0, 0);
+	//sprintf_s(buffer, 100, "didWeGetlpMsg == %d\n", didWeGetlpMsg);
 	//OutputDebugStringA(buffer);
 
-	/*
-	DWORD address = 0x01001488;
-	char* originalTextAddress;
-	originalTextAddress = (char *)address;
-	sprintf_s(buffer, 100, "originalTextAddress");
-
-	for (unsigned int a = 0; a < 10; a++) {
-		buffer[a] = *(originalTextAddress + 2 * a);
-		//OutputDebugStringA(buffer);
-	}
-	OutputDebugStringA("\n");
-	OutputDebugStringA(buffer);
-	*/
-
-	//DWORD address = 0x01010C04;		// location of string in memory to change
-	/*
-	const unsigned int originalTextLength = 26;
-	const char originalTextExpected[] = "That move is not allowed.";
-
-	char* originalTextAddress;
-	char* modifiedTextAddress;
-	originalTextAddress = (char *)address;
-	modifiedTextAddress = (char *)address;
-	*/
+	//sprintf_s(buffer, 100, "lpMsg == %x\n", int(lpMsg));
+	//OutputDebugStringA(buffer);
+	OutputDebugStringA("After GetMessage()");
 
 
-	// ********************************************************************************************
-
-
-
-	// ********************************************************************************************
-	// Then let's make a copy
-	// ********************************************************************************************
-
-	// ********************************************************************************************
-
-
-
-	// ********************************************************************************************
-	// Then let's use the new one
 	// ********************************************************************************************
 
 	// ********************************************************************************************
